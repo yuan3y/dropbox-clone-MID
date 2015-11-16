@@ -2,7 +2,7 @@ import os.path
 import filemeta
 import json
 
-meta_data_list = []
+meta_data_dict = dict()
 
 if False:
     # os.path.isfile('.index'):
@@ -15,7 +15,7 @@ else:
     for filename in file_names_list:
         if os.path.isfile(filename):
             # print(filemeta.filemeta(filename))
-            meta_data_list.append(filemeta.filemeta(filename))
-    print(meta_data_list)
-    f.write(json.dumps(meta_data_list))
+            meta_data_dict.setdefault(filename, filemeta.filemeta(filename))
+    print(meta_data_dict)
+    f.write(json.dumps(meta_data_dict))
     f.close()
