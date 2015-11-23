@@ -4,7 +4,7 @@ port = 53000  # where do you expect to get a msg?
 bufferSize = 1024 # whatever you need
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.bind(("<broadcast>", port))
+s.bind(("0.0.0.0", port))
 s.setblocking(0)
 
 while True:
