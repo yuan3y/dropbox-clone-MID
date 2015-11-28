@@ -53,7 +53,7 @@ def main():
     print("starting chat on %s:9000 (%s.*)" % (args.interface, masked))
     while True:
         try:
-            msg = input()
+            msg = raw_input()
             bcast.send_string("%s: %s" % (args.user, msg))
         except KeyboardInterrupt:
             break
