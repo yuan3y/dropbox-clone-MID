@@ -1,9 +1,9 @@
 import requests
 import os
-from client.filesmonitoring import filesmonitoring
+from filesmonitoring import runmonitoring
 import filemeta
 
-defaultpath = "./store"
+defaultpath = "./store/"
 filenames_list =  os.listdir(defaultpath)
 print(filenames_list)
 
@@ -13,9 +13,9 @@ for filename in filenames_list:
     if os.path.isfile(filepath):
         print(filepath)
         file = open(filepath, 'r')
-
         data = file.read()
-        requests.post("http://127.0.0.1:5000", data={'filename': filename, 'data':data})
+        file.close()
+        requests.post("http://127.0.0.1:5000", data={'filename': filepath, 'data':data, 'modifiation':'new'})
          # r2 = requests.post("http://127.0.0.1:5000", data=filemeta.filemeta(filename))
 
 # look for changes in directory

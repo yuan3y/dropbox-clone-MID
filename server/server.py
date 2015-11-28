@@ -26,6 +26,11 @@ def hello_world():
         f.write(request.form['data'])
         f.close()
 
+    if (request.form['modifiation'] == 'upd'):
+        f = open(request.form['filename'], 'w')
+        f.write(request.form['data'])
+        f.close()
+
     # print(request.form[data])
     # print(request.info)
     return 'Hello World!'
