@@ -1,30 +1,28 @@
-# import flask
-from flask import Flask, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 import os
 
 defaultpath = "./store/"
 
 app = Flask(__name__)
 
-#
-@app.route('/', methods=['GET'])
+# get 'filename' file on the server
+@app.route('/getfile', methods=['GET'])
 def getFile():
-    filenames_list =  os.listdir(request.form['path'])
+    print(request.form['filename'])
+    f = open(defaultpath + request.form['filename'], 'r')
+    data = f.read()
+    f.close()
+    return jsonify({'data': data})
 
-    return send_from_directory(request.form['path'], filenames_list[request.form['number']])
-
-@app.route('/getnumfiles', methods=['GET'])
+# get list of all files on the server
+@app.route('/getfiles', methods=['GET'])
 def getCountFiles():
     filenames_list =  os.listdir(request.form['path'])
-    print(request.form['path'])
-    print(len(filenames_list))
-    return str(flask.jsonify(size=filenames_list.size))
+    return jsonify({'list': filenames_list})
 
-#
+# publish changes on the server
 @app.route('/', methods=['POST'])
 def post():
-    # print(request.form['newfilename'])
-    # print(request.method)
     # the new file appeared
     if (request.form['modifiation'] == 'new'):
         f = open(request.form['filename'], 'w')

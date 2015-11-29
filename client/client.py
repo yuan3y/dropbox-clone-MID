@@ -21,10 +21,20 @@ for filename in filenames_list:
 
 
 while True:
-    time.sleep(5)
-    r = requests.get("http://127.0.0.1:5000/getnumfiles", data={'path': defaultpath})
-    print(r.json)
 
+    r = requests.get("http://127.0.0.1:5000/getfiles", data={'path': defaultpath})
+    onserverfile_list = r.json()['list']
+    print(onserverfile_list)
+
+    for filename in onserverfile_list:
+        ri = requests.get("http://127.0.0.1:5000/getfile", data={'filename': filename})
+        print(ri)
+        file = open(defaultpath + filename, 'w')
+        data = ri.json()['data']
+        file.write(data)
+        file.close()
+
+    time.sleep(30)
 
 # look for changes in directory
 runmonitoring()
