@@ -1,14 +1,30 @@
-from flask import Flask
-from flask import request
+# import flask
+from flask import Flask, request, send_from_directory
 import os
+
+defaultpath = "./store/"
 
 app = Flask(__name__)
 
+#
+@app.route('/', methods=['GET'])
+def getFile():
+    filenames_list =  os.listdir(request.form['path'])
 
-@app.route('/', methods=['POST', 'GET'])
-def hello_world():
-    print(request.path)
-    print(request.method)
+    return send_from_directory(request.form['path'], filenames_list[request.form['number']])
+
+@app.route('/getnumfiles', methods=['GET'])
+def getCountFiles():
+    filenames_list =  os.listdir(request.form['path'])
+    print(request.form['path'])
+    print(len(filenames_list))
+    return str(flask.jsonify(size=filenames_list.size))
+
+#
+@app.route('/', methods=['POST'])
+def post():
+    # print(request.form['newfilename'])
+    # print(request.method)
     # the new file appeared
     if (request.form['modifiation'] == 'new'):
         f = open(request.form['filename'], 'w')
@@ -31,10 +47,8 @@ def hello_world():
         f.write(request.form['data'])
         f.close()
 
-    # print(request.form[data])
-    # print(request.info)
     return 'Hello World!'
-
 
 if __name__ == '__main__':
     app.run()
+
