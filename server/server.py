@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory
 import os
 
 defaultpath = "./store/"
-currentserver = '192.168.56.1'
+currentserver = '192.168.43.240'
 
 app = Flask(__name__)
 

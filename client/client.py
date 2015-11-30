@@ -5,8 +5,8 @@ from filesmonitoring import runmonitoring
 import filemeta
 
 defaultpath = "./store/"
-currentserver = '192.168.56.1'
-port = '5000'
+currentserver = "http://192.168.43.240"
+port = "5000"
 
 filenames_list =  os.listdir(defaultpath)
 print(filenames_list)
@@ -19,7 +19,8 @@ for filename in filenames_list:
         file = open(filepath, 'r')
         data = file.read()
         file.close()
-        requests.post("https://" + currentserver + ":" + port, data={'filename': filepath, 'data':data, 'modification':'new'})
+        r = requests.post(currentserver+ ":" + port, data={'filename': filepath, 'data':data, 'modification':'new'})
+        print (r)
          # r2 = requests.post("http://127.0.0.1:5000", data=filemeta.filemeta(filename))
 
 
@@ -40,6 +41,7 @@ for filename in filenames_list:
 #     time.sleep(30)
 
 # look for changes in directory
+
 runmonitoring()
 
 
