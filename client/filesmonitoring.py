@@ -3,6 +3,10 @@ from watchdog.events import FileSystemEventHandler
 import time
 import requests
 
+defaultpath = "./store/"
+currentserver = '192.168.56.1'
+port = '5000'
+
 # class for monitoring FileSystem
 class Handler(FileSystemEventHandler):
 
@@ -11,24 +15,24 @@ class Handler(FileSystemEventHandler):
         file = open(event.src_path, 'r')
         data = file.read()
         file.close()
-        requests.post("http://127.0.0.1:5000", data={'filename': event.src_path, 'data':data, 'modifiation':'new'})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modifiation':'new'})
 
     # deleting
     def on_deleted(self, event):
-        requests.post("http://127.0.0.1:5000", data={'filename': event.src_path, 'modifiation':'del'})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'modifiation':'del'})
 
     # renamimg
     def on_moved(self, event):
         file = open(event.dest_path, 'r')
         data = file.read()
         file.close()
-        requests.post("http://127.0.0.1:5000", data={'filename': event.src_path, 'data':data, 'modifiation': 'mod', 'newfilename':event.dest_path})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modifiation': 'mod', 'newfilename':event.dest_path})
 
     def on_modified(self, event):
         file = open(event.src_path, 'r')
         data = file.read()
         file.close()
-        requests.post("http://127.0.0.1:5000", data={'filename': event.src_path, 'data':data, 'modifiation': 'upd'})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modifiation': 'upd'})
 
 # launch observer of filesystem
 def runmonitoring():
@@ -39,7 +43,20 @@ def runmonitoring():
     #run forever
     try:
         while True:
-            time.sleep(0.1)
+            #  check for scanges on the server
+            time.sleep(10)
+            r = requests.get("https://" + currentserver + ":" + port + "/getfiles", data={'path': defaultpath})
+            onserverfile_list = r.json()['list']
+            print(onserverfile_list)
+
+            for filename in onserverfile_list:
+                ri = requests.get("https://" + currentserver + ":" + port + "/getfile", data={'filename': filename})
+                print(ri)
+                file = open(defaultpath + filename, 'w')
+                data = ri.json()['data']
+                file.write(data)
+                file.close()
+
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
