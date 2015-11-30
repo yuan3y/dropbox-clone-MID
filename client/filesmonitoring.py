@@ -15,24 +15,24 @@ class Handler(FileSystemEventHandler):
         file = open(event.src_path, 'r')
         data = file.read()
         file.close()
-        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modifiation':'new'})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modification':'new'})
 
     # deleting
     def on_deleted(self, event):
-        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'modifiation':'del'})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'modification':'del'})
 
     # renamimg
     def on_moved(self, event):
         file = open(event.dest_path, 'r')
         data = file.read()
         file.close()
-        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modifiation': 'mod', 'newfilename':event.dest_path})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modification': 'mod', 'newfilename':event.dest_path})
 
     def on_modified(self, event):
         file = open(event.src_path, 'r')
         data = file.read()
         file.close()
-        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modifiation': 'upd'})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': event.src_path, 'data':data, 'modification': 'upd'})
 
 # launch observer of filesystem
 def runmonitoring():

@@ -25,23 +25,23 @@ def getCountFiles():
 @app.route('/', methods=['POST'])
 def post():
     # the new file appeared
-    if (request.form['modifiation'] == 'new'):
+    if (request.form['modification'] == 'new'):
         f = open(request.form['filename'], 'w')
         f.write(request.form['data'])
         f.close()
 
     # some file was deleted
-    if (request.form['modifiation'] == 'del'):
+    if (request.form['modification'] == 'del'):
         os.remove(request.form['filename'])
 
     # some file was modificated
-    if (request.form['modifiation'] == 'mod'):
+    if (request.form['modification'] == 'mod'):
         os.remove(request.form['filename'])
         f = open(request.form['newfilename'], 'w')
         f.write(request.form['data'])
         f.close()
 
-    if (request.form['modifiation'] == 'upd'):
+    if (request.form['modification'] == 'upd'):
         f = open(request.form['filename'], 'w')
         f.write(request.form['data'])
         f.close()

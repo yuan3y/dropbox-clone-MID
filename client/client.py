@@ -19,7 +19,7 @@ for filename in filenames_list:
         file = open(filepath, 'r')
         data = file.read()
         file.close()
-        requests.post("https://" + currentserver + ":" + port, data={'filename': filepath, 'data':data, 'modifiation':'new'})
+        requests.post("https://" + currentserver + ":" + port, data={'filename': filepath, 'data':data, 'modification':'new'})
          # r2 = requests.post("http://127.0.0.1:5000", data=filemeta.filemeta(filename))
 
 
