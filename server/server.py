@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request, send_from_directory
 import os
+import shutil
 
 defaultpath = "./store/"
-currentserver = '192.168.43.240'
+# currentserver = '192.168.43.240'
+currentserver = "127.0.0.1"
 
 app = Flask(__name__)
 
@@ -21,14 +23,17 @@ def getCountFiles():
     filenames_list =  os.listdir(request.form['path'])
     return jsonify({'list': filenames_list})
 
-# publish changes on the server
-@app.route('/', methods=['POST'])
-def post():
+# publish changes of files on the server
+@app.route('/files', methods=['POST'])
+def postFiles():
     # the new file appeared
     if (request.form['modification'] == 'new'):
-        f = open(request.form['filename'], 'w')
-        f.write(request.form['data'])
-        f.close()
+        try:
+            f = open(request.form['filename'], 'w')
+            f.write(request.form['data'])
+            f.close()
+        except IOError:
+            print('There was an error with file' + request.form['filename'])
 
     # some file was deleted
     if (request.form['modification'] == 'del'):
@@ -36,18 +41,44 @@ def post():
 
     # some file was modificated
     if (request.form['modification'] == 'mod'):
-        os.remove(request.form['filename'])
-        f = open(request.form['newfilename'], 'w')
-        f.write(request.form['data'])
-        f.close()
+        try:
+            os.remove(request.form['filename'])
+            f = open(request.form['newfilename'], 'w')
+            f.write(request.form['data'])
+            f.close()
+        except IOError:
+            print('There was an error with  renaming file' + request.form['filename'])
 
+    # update is up to files
     if (request.form['modification'] == 'upd'):
-        f = open(request.form['filename'], 'w')
-        f.write(request.form['data'])
-        f.close()
+        try:
+            f = open(request.form['filename'], 'w')
+            f.write(request.form['data'])
+            f.close()
+        except IOError:
+            print('There was an error with modifying file' + request.form['filename'])
 
-    return 'Hello World!'
+    return 'postedFiles'
+
+# publish changes of folders on the server
+@app.route('/folders', methods=['POST'])
+def postDirs():
+    # the new folder appeared
+    if (request.form['modification'] == 'new'):
+        os.makedirs(request.form['dir'])
+
+    # some folder was deleted
+    if (request.form['modification'] == 'del'):
+        shutil.rmtree(request.form['newfilename'])
+
+    # some file/folder was modificated
+    if (request.form['modification'] == 'mod'):
+        print('how to do it?')
+
+    return 'PostedDirs'
+
 
 if __name__ == '__main__':
     app.run(host = currentserver)
+    # app.run()
 

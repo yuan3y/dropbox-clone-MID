@@ -5,43 +5,29 @@ from filesmonitoring import runmonitoring
 import filemeta
 
 defaultpath = "./store/"
-currentserver = "http://192.168.43.240"
+# currentserver = "http://192.168.43.240"
+currentserver = "http://127.0.0.1"
 port = "5000"
 
 filenames_list =  os.listdir(defaultpath)
 print(filenames_list)
 
-# synhronise
-for filename in filenames_list:
-    filepath = defaultpath + filename
-    if os.path.isfile(filepath):
-        print(filepath)
-        file = open(filepath, 'r')
+# first of all send all files in dirs and subdirs to server
+def walk(dir):
+  for name in os.listdir(dir):
+     path = os.path.join(dir, name)
+     if os.path.isfile(path):
+        file = open(path, 'r')
         data = file.read()
         file.close()
-        r = requests.post(currentserver+ ":" + port, data={'filename': filepath, 'data':data, 'modification':'new'})
-        print (r)
-         # r2 = requests.post("http://127.0.0.1:5000", data=filemeta.filemeta(filename))
+        r = requests.post(currentserver+ ":" + port + "/files", data={'filename': path, 'data':data, 'modification':'new'})
+     if os.path.isdir(path):
+        r = requests.post(currentserver+ ":" + port + "/folders", data={'dir': path, 'modification':'new'})
+        walk(path)
 
+walk(defaultpath)
 
-# while True:
-#
-#     r = requests.get("https://" + currentserver + ":" + port + "/getfiles", data={'path': defaultpath})
-#     onserverfile_list = r.json()['list']
-#     print(onserverfile_list)
-#
-#     for filename in onserverfile_list:
-#         ri = requests.get("https://" + currentserver + ":" + port + "/getfile", data={'filename': filename})
-#         print(ri)
-#         file = open(defaultpath + filename, 'w')
-#         data = ri.json()['data']
-#         file.write(data)
-#         file.close()
-#
-#     time.sleep(30)
-
-# look for changes in directory
-
+# run script for determiming every changes in the folder
 runmonitoring()
 
 
