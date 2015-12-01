@@ -6,23 +6,42 @@ defaultpath = "./store/"
 # currentserver = '192.168.43.240'
 currentserver = "127.0.0.1"
 
+def walkFiles(listFiles, listFolders, dir):
+  for name in os.listdir(dir):
+     path = os.path.join(dir, name)
+     if os.path.isfile(path):
+        listFiles.append(path)
+     if os.path.isdir(path):
+        listFolders.append(path)
+        walkFiles(listFiles, listFolders, path)
+
 app = Flask(__name__)
 
 @app.route('/getfile', methods=['GET'])
 # get 'filename' file on the server
 def getFile():
     print(request.form['filename'])
-    f = open(defaultpath + request.form['filename'], 'r')
+    f = open(request.form['filename'], 'r')
     data = f.read()
     f.close()
     return jsonify({'data': data})
 
 
 @app.route('/getfiles', methods=['GET'])
-# get list of all files on the server
+# get list of all files/dirs on the server
 def getCountFiles():
-    filenames_list =  os.listdir(request.form['path'])
-    return jsonify({'list': filenames_list})
+    listfiles = os.listdir(request.form['path'])
+    listfolders = os.listdir(request.form['path'])
+    walkFiles(listfiles, listfolders, request.form['path'])
+
+    for name in listfiles:
+        if name in listfolders:
+            listfolders.remove(name)
+
+    for name in os.listdir(request.form['path']):
+        listfiles.remove(name)
+
+    return jsonify({'listfiles': listfiles, 'listfolders': listfolders})
 
 
 @app.route('/del', methods=['POST'])

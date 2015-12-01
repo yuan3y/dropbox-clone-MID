@@ -17,6 +17,8 @@ currentpathdirs = currentserver+ ":" + port + "/folders"
 # renaming files and folders
 currentpathchange = currentserver+ ":" + port + "/change"
 
+#
+
 # class for monitoring FileSystem
 class Handler(FileSystemEventHandler):
 
@@ -62,19 +64,33 @@ def runmonitoring():
     #run forever
     try:
          while True:
-    #         #  check for scanges on the server
+
+             #  check for scanges on the server
              time.sleep(10)
-    #         r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
-    #         onserverfile_list = r.json()['list']
-    #         print(onserverfile_list)
-    #
-    #         for filename in onserverfile_list:
-    #             ri = requests.get(currentserver+ ":" + port + "/getfile", data={'filename': filename})
-    #             print(ri)
-    #             file = open(defaultpath + filename, 'w')
-    #             data = ri.json()['data']
-    #             file.write(data)
-    #             file.close()
+             r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
+             print(r)
+
+             # get directories and files on server
+             onserverfolder_list = r.json()['listfolders']
+             onserverfile_list = r.json()['listfiles']
+
+             # print
+             print(onserverfolder_list)
+             print(onserverfile_list)
+
+             # create new folders
+             for dir in onserverfolder_list:
+                 if not os.path.exists(dir):
+                     os.makedirs(dir)
+
+             # fill folders with new files
+             for filename in onserverfile_list:
+                ri = requests.get(currentserver+ ":" + port + "/getfile", data={'filename': filename})
+                print(ri)
+                file = open(filename, 'w')
+                data = ri.json()['data']
+                file.write(data)
+                file.close()
 
     except KeyboardInterrupt:
         observer.stop()
