@@ -6,6 +6,7 @@ defaultpath = "./store/"
 # currentserver = "http://192.168.43.240"
 currentserver = "http://127.0.0.1"
 port = "5000"
+currentpathdel = currentserver+ ":" + port + "/del"
 currentpathfiles = currentserver+ ":" + port + "/files"
 currentpathdirs = currentserver+ ":" + port + "/folders"
 
@@ -25,12 +26,8 @@ class Handler(FileSystemEventHandler):
 
     # deleting file/folder
     def on_deleted(self, event):
-        path = os.path.abspath(event.src_path)
-        print(os.path.abspath(event.src_path))
-        if os.path.isdir(path):
-            requests.post(currentpathdirs, data={'dir': event.src_path, 'modification':'del'})
-        else:
-            requests.post(currentpathfiles, data={'filename': event.src_path, 'modification':'del'})
+        # no matter what to detele
+        requests.post(currentpathdel, data={'dir': event.src_path, 'modification':'del'})
 
     # renamimg file/folder
     def on_moved(self, event):

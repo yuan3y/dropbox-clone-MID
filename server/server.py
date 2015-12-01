@@ -23,8 +23,18 @@ def getCountFiles():
     filenames_list =  os.listdir(request.form['path'])
     return jsonify({'list': filenames_list})
 
+# del files/folders on server
+@app.route('/del', methods=['POST'])
+
+def postDel():
+    if (os.path.isfile(request.form['dir'])):
+        os.remove(request.form['dir'])
+    else:
+        shutil.rmtree(request.form['dir'])
+
 # publish changes of files on the server
 @app.route('/files', methods=['POST'])
+
 def postFiles():
     # the new file appeared
     if (request.form['modification'] == 'new'):
@@ -34,10 +44,6 @@ def postFiles():
             f.close()
         except IOError:
             print('There was an error with file' + request.form['filename'])
-
-    # some file was deleted
-    if (request.form['modification'] == 'del'):
-        os.remove(request.form['filename'])
 
     # some file was modificated
     if (request.form['modification'] == 'mod'):
@@ -67,16 +73,11 @@ def postDirs():
     if (request.form['modification'] == 'new'):
         os.makedirs(request.form['dir'])
 
-    # some folder was deleted
-    if (request.form['modification'] == 'del'):
-        shutil.rmtree(request.form['newfilename'])
-
     # some file/folder was modificated
     if (request.form['modification'] == 'mod'):
         print('how to do it?')
 
     return 'PostedDirs'
-
 
 if __name__ == '__main__':
     app.run(host = currentserver)
