@@ -6,9 +6,16 @@ defaultpath = "./store/"
 # currentserver = "http://192.168.43.240"
 currentserver = "http://127.0.0.1"
 port = "5000"
+
+# deleting files and folders
 currentpathdel = currentserver+ ":" + port + "/del"
+
+# dependent changes
 currentpathfiles = currentserver+ ":" + port + "/files"
 currentpathdirs = currentserver+ ":" + port + "/folders"
+
+# renaming files and folders
+currentpathchange = currentserver+ ":" + port + "/change"
 
 # class for monitoring FileSystem
 class Handler(FileSystemEventHandler):
@@ -31,11 +38,14 @@ class Handler(FileSystemEventHandler):
 
     # renamimg file/folder
     def on_moved(self, event):
-        file = open(event.dest_path, 'r')
-        data = file.read()
-        file.close()
-        requests.post(currentpathfiles, data={'filename': event.src_path, 'data':data, 'modification': 'mod', 'newfilename':event.dest_path})
+        data = ''
+        if os.path.isfile(event.src_path):
+            file = open(event.dest_path, 'r')
+            data = file.read()
+            file.close()
+        requests.post(currentpathchange, data={'previousName': event.src_path, 'data':data, 'modification': 'mod', 'newName':event.dest_path})
 
+    # only for files
     def on_modified(self, event):
         if os.path.isfile(event.src_path):
             file = open(event.src_path, 'r')
