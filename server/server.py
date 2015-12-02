@@ -84,6 +84,7 @@ def postFiles():
             f.close()
         except IOError:
             print('There was an error with modifying file' + request.form['filename'])
+    return '', 200
 
 # publish changes of folders on the server
 @app.route('/folders', methods=['POST'])
