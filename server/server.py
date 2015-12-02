@@ -95,6 +95,7 @@ def postDirs():
     # the new folder appeared
     if (request.form['modification'] == 'new'):
         os.makedirs(request.form['dir'])
+    return 200
 
 if __name__ == '__main__':
     app.run(host = currentserver)

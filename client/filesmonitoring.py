@@ -1,6 +1,7 @@
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time, requests,os
+from filemeta import filemeta
 
 defaultpath = "./store/"
 # currentserver = "http://192.168.43.240"
@@ -50,10 +51,19 @@ class Handler(FileSystemEventHandler):
     # only for files
     def on_modified(self, event):
         if os.path.isfile(event.src_path):
-            file = open(event.src_path, 'r')
-            data = file.read()
-            file.close()
-            requests.post(currentpathfiles, data={'filename': event.src_path, 'data':data, 'modification': 'upd'})
+            meta=filemeta(event.src_path)
+            f=open('.index','r')
+            servermeta=f.readline()
+            servermeta=eval(servermeta)
+            if meta['hash'] == servermeta[event.src_path]['hash']:
+                # print('no change for file '+str(meta))
+                pass
+            else:
+                # print('it still changes')
+                file = open(event.src_path, 'r')
+                data = file.read()
+                file.close()
+                requests.post(currentpathfiles, data={'filename': event.src_path, 'data':data, 'modification': 'upd'})
 
 # launch observer of filesystem
 def runmonitoring():
@@ -82,8 +92,8 @@ def runmonitoring():
              for dir in onserverfolder_list:
                  if not os.path.exists(dir):
                      os.makedirs(dir)
-
-             # fill folders with new files
+             # todo: currently it is getting all files from the server, but
+             # todo: fill folders with ONLY new files
              for filename in onserverfile_list:
                 ri = requests.get(currentserver+ ":" + port + "/getfile", data={'filename': filename})
                 print(ri)

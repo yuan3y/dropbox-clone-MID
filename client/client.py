@@ -17,6 +17,9 @@ onserverfilemeta=r.json()['listfiles']
 onserverfolder_list=r.json()['listfolders']
 print(onserverfilemeta)
 print(onserverfolder_list)
+f = open('.index', 'w')
+f.write(str(onserverfilemeta))
+f.close()
 
 # first of all send all files in dirs and subdirs to server
 def walk(dir):
