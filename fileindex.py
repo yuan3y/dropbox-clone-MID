@@ -1,21 +1,17 @@
 import os.path
 import filemeta
 import json
+from server.server import walkFiles
 
-meta_data_dict = dict()
+def getIndex(index,dir="./"):
+    meta_data_dict = dict()
+    listFiles=[]
+    listFolders=[]
+    walkFiles(listFiles,listFolders,dir)
+    for filename in listFiles:
+        meta_data_dict.setdefault(filename,filemeta.filemeta(filename))
+    index={'listfiles': meta_data_dict, 'listfolders': listFolders}
+    print(index)
 
-if False:
-    # os.path.isfile('.index'):
-    # TODO: compare the index hash and current hash
-    pass
-else:
-    # build index
-    f = open('.index', 'w')
-    file_names_list = os.listdir("./")
-    for filename in file_names_list:
-        if os.path.isfile(filename):
-            # print(filemeta.filemeta(filename))
-            meta_data_dict.setdefault(filename, filemeta.filemeta(filename))
-    print(meta_data_dict)
-    f.write(json.dumps(meta_data_dict))
-    f.close()
+# index=[]
+# getIndex(index,dir="./server/store/")
