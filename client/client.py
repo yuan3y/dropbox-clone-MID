@@ -1,25 +1,17 @@
-import requests
 import os
-import time
-from filesmonitoring import runmonitoring
-import filemeta
 
-defaultpath =   "./store/"
+import requests
+from filesmonitoring import runmonitoring
+
+from client_default import defaultpath, currentserver, port
+from writeIndex import writeIndex
+
 # currentserver = "http://192.168.43.240"
-currentserver = "http://127.0.0.1"
-port = "5000"
 
 filenames_list =  os.listdir(defaultpath)
 print(filenames_list)
 
-r = requests.get(currentserver+ ":" + port + "/getIndex", data={'path': defaultpath})
-onserverfilemeta=r.json()['listfiles']
-onserverfolder_list=r.json()['listfolders']
-print(onserverfilemeta)
-print(onserverfolder_list)
-f = open('.index', 'w')
-f.write(str(onserverfilemeta))
-f.close()
+writeIndex()
 
 # first of all send all files in dirs and subdirs to server
 def walk(dir):
@@ -29,9 +21,9 @@ def walk(dir):
         file = open(path, 'r')
         data = file.read()
         file.close()
-        r = requests.post(currentserver+ ":" + port + "/files", data={'filename': path, 'data':data, 'modification':'new'})
+        r = requests.post(currentserver + ":" + port + "/files", data={'filename': path, 'data':data, 'modification': 'new'})
      if os.path.isdir(path):
-        r = requests.post(currentserver+ ":" + port + "/folders", data={'dir': path, 'modification':'new'})
+        r = requests.post(currentserver + ":" + port + "/folders", data={'dir': path, 'modification': 'new'})
         walk(path)
 
 walk(defaultpath)

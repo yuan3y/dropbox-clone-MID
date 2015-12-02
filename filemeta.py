@@ -1,9 +1,7 @@
-import requests
-import os, time
-from os.path import isfile, join, getsize
 import hashlib
-import json
-import collections
+import os
+import time
+
 
 def filehash(filepath):
     hash = hashlib.md5()
@@ -16,3 +14,5 @@ def filehash(filepath):
 def filemeta(filepath):
     if os.path.isfile(filepath):
         return {'path': filepath, 'mtime': time.ctime(os.path.getmtime(filepath)), 'size': os.path.getsize(filepath), 'hash': filehash(filepath)}
+
+

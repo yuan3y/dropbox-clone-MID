@@ -1,7 +1,12 @@
-from watchdog.observers import Observer
+import os
+import requests
+import time
+
 from watchdog.events import FileSystemEventHandler
-import time, requests,os
+from watchdog.observers import Observer
+
 from filemeta import filemeta
+from writeIndex import writeIndex
 
 defaultpath = "./store/"
 # currentserver = "http://192.168.43.240"
@@ -77,13 +82,15 @@ def runmonitoring():
 
              #  check for scanges on the server
              time.sleep(10)
-             r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
-             print(r)
+             # r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
+             # print(r)
 
-             # get directories and files on server
-             onserverfolder_list = r.json()['listfolders']
-             onserverfile_list = r.json()['listfiles']
+             onserverfile_list, onserverfolder_list= writeIndex()
 
+             # # get directories and files on server
+             # onserverfolder_list = r.json()['listfolders']
+             # onserverfile_list = r.json()['listfiles']
+             #
              # print
              print(onserverfolder_list)
              print(onserverfile_list)
@@ -94,6 +101,7 @@ def runmonitoring():
                      os.makedirs(dir)
              # todo: currently it is getting all files from the server, but
              # todo: fill folders with ONLY new files
+
              for filename in onserverfile_list:
                 ri = requests.get(currentserver+ ":" + port + "/getfile", data={'filename': filename})
                 print(ri)
