@@ -112,15 +112,14 @@ def runmonitoring():
                     # todo: currently it is getting all files from the server, but
                     # todo: fill folders with ONLY new files
 
-
-
-                    # for filename in onserverfile_list:
-                    #     ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': filename})
-                    #     print(ri)
-                    #     file = open(filename, 'w')
-                    #     data = ri.json()['data']
-                    #     file.write(data)
-                    #     file.close()
+            for filename in onserverfile_list:
+                if DEBUG: print(currentserver+":"+port+"/getfile","filename",filename)
+                ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': filename})
+                # print(ri)
+                file = open(filename, 'w')
+                data = ri.json()['data']
+                file.write(data)
+                file.close()
 
     except KeyboardInterrupt:
         observer.stop()
