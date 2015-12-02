@@ -1,11 +1,10 @@
 import os
+import shutil
 import time
 from client_default import *
-
 import requests
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-
 from filemeta import filemeta
 from writeIndex import writeIndex
 
@@ -57,7 +56,7 @@ class Handler(FileSystemEventHandler):
             f = open('.index', 'r')
             servermeta = f.readline()
             servermeta = eval(servermeta)
-            if meta['hash'] == servermeta[event.src_path]['hash']:
+            if event.src_path in servermeta and meta['hash'] == servermeta[event.src_path]['hash']:
                 # print('no change for file '+str(meta))
                 pass
             else:
@@ -83,7 +82,7 @@ def runmonitoring():
             # r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
             # print(r)
 
-            onserverfile_list, onserverfolder_list = writeIndex()
+            onserverfile_list, onserverfolder_list, deleted_files = writeIndex()
 
             # # get directories and files on server
             # onserverfolder_list = r.json()['listfolders']
@@ -92,21 +91,30 @@ def runmonitoring():
             # print
             print(onserverfolder_list)
             print(onserverfile_list)
+            print(deleted_files)
+
+            for file in deleted_files:
+                if (os.path.isfile(file)):
+                    os.remove(file)
+                elif (os.path.exists(file)):
+                    shutil.rmtree(file)
 
             # create new folders
             for dir in onserverfolder_list:
                 if not os.path.exists(dir):
                     os.makedirs(dir)
-            # todo: currently it is getting all files from the server, but
-            # todo: fill folders with ONLY new files
+                    # todo: currently it is getting all files from the server, but
+                    # todo: fill folders with ONLY new files
 
-            for filename in onserverfile_list:
-                ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': filename})
-                print(ri)
-                file = open(filename, 'w')
-                data = ri.json()['data']
-                file.write(data)
-                file.close()
+
+
+                    # for filename in onserverfile_list:
+                    #     ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': filename})
+                    #     print(ri)
+                    #     file = open(filename, 'w')
+                    #     data = ri.json()['data']
+                    #     file.write(data)
+                    #     file.close()
 
     except KeyboardInterrupt:
         observer.stop()

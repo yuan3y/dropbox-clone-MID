@@ -1,8 +1,6 @@
 import os
 import shutil
-
 from flask import Flask, jsonify, request
-
 import fileindex
 from client_default import *
 
@@ -36,13 +34,18 @@ def getCountFiles():
     return jsonify({'listfiles': listfiles, 'listfolders': listfolders})
 
 
+deleted_files = []
+
+
 @app.route('/getIndex', methods=['GET'])
 # get an index of filemeta and folders
 def getIndex():
     index = fileindex.getIndex(dir=request.form['path'])
     files = index['listfiles']
     folders = index['listfolders']
-    return jsonify({'listfiles': files, 'listfolders': folders})
+    result = jsonify({'listfiles': files, 'listfolders': folders, 'deleted': deleted_files})
+    deleted_files.clear()
+    return result
     # print("server jsonifies such thing: "+jsonify(index))
     # return jsonify(index)
 
@@ -54,6 +57,7 @@ def postDel():
         os.remove(request.form['dir'])
     else:
         shutil.rmtree(request.form['dir'])
+    deleted_files.append(request.form['dir'])
 
 
 @app.route('/change', methods=['POST'])
@@ -98,8 +102,8 @@ def postDirs():
 
 
 if __name__ == '__main__':
-    serverip=currentserver[6:]
+    serverip = currentserver[6:]
     if not serverip[0].isnumeric():
-        serverip=serverip[1:]
+        serverip = serverip[1:]
     print(serverip)
-    app.run(host = serverip)
+    app.run(host=serverip)
