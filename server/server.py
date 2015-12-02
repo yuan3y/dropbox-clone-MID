@@ -1,15 +1,16 @@
-from flask import Flask, jsonify, request, send_from_directory
 import os
 import shutil
+
+from flask import Flask, jsonify, request
+
 import fileindex
 
 defaultpath = "./store/"
 # currentserver = '192.168.43.240'
 currentserver = "127.0.0.1"
 
-
-
 app = Flask(__name__)
+
 
 @app.route('/getfile', methods=['GET'])
 # get 'filename' file on the server
@@ -41,10 +42,10 @@ def getCountFiles():
 @app.route('/getIndex', methods=['GET'])
 # get an index of filemeta and folders
 def getIndex():
-    index=fileindex.getIndex(dir=request.form['path'])
-    files=index['listfiles']
-    folders=index['listfolders']
-    return jsonify({'listfiles':files, 'listfolders':folders})
+    index = fileindex.getIndex(dir=request.form['path'])
+    files = index['listfiles']
+    folders = index['listfolders']
+    return jsonify({'listfiles': files, 'listfolders': folders})
     # print("server jsonifies such thing: "+jsonify(index))
     # return jsonify(index)
 
@@ -89,6 +90,7 @@ def postFiles():
             print('There was an error with modifying file' + request.form['filename'])
     return '', 200
 
+
 # publish changes of folders on the server
 @app.route('/folders', methods=['POST'])
 def postDirs():
@@ -97,7 +99,7 @@ def postDirs():
         os.makedirs(request.form['dir'])
     return 200
 
-if __name__ == '__main__':
-    app.run(host = currentserver)
-    # app.run()
 
+if __name__ == '__main__':
+    app.run(host=currentserver)
+    # app.run()

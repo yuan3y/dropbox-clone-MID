@@ -1,6 +1,6 @@
 import os.path
+
 import filemeta
-import json
 
 
 def walkFiles(listFiles, listFolders, dir):
