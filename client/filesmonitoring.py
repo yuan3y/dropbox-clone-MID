@@ -8,6 +8,8 @@ from watchdog.observers import Observer
 from filemeta import filemeta
 from writeIndex import writeIndex
 
+DEBUG = False
+
 # deleting files and folders
 currentpathdel = currentserver + ":" + port + "/del"
 
@@ -19,24 +21,25 @@ currentpathdirs = currentserver + ":" + port + "/folders"
 currentpathchange = currentserver + ":" + port + "/change"
 
 
-#
-
 # class for monitoring FileSystem
 class Handler(FileSystemEventHandler):
     # new file appeared -> send to server
     def on_created(self, event):
         if os.path.isfile(event.src_path):
-            print(event.src_path)
+            # print(event.src_path)
             file = open(event.src_path, 'r')
             data = file.read()
             file.close()
+            if DEBUG: print(currentpathfiles, 'filename', event.src_path, 'data', data, 'modification', 'new')
             requests.post(currentpathfiles, data={'filename': event.src_path, 'data': data, 'modification': 'new'})
         else:
+            if DEBUG: print(currentpathdirs, 'dir', event.src_path, 'modification', 'new')
             requests.post(currentpathdirs, data={'dir': event.src_path, 'modification': 'new'})
 
     # deleting file/folder
     def on_deleted(self, event):
         # no matter what to detele
+        if DEBUG: print(currentpathdel, 'dir', event.src_path, 'modification', 'del')
         requests.post(currentpathdel, data={'dir': event.src_path, 'modification': 'del'})
 
     # renamimg file/folder
@@ -46,6 +49,8 @@ class Handler(FileSystemEventHandler):
             file = open(event.dest_path, 'r')
             data = file.read()
             file.close()
+        if DEBUG: print(currentpathchange, 'previousName', event.src_path, 'data', data, 'modification', 'mod',
+                        'newName', event.dest_path)
         requests.post(currentpathchange, data={'previousName': event.src_path, 'data': data, 'modification': 'mod',
                                                'newName': event.dest_path})
 
@@ -64,6 +69,7 @@ class Handler(FileSystemEventHandler):
                 file = open(event.src_path, 'r')
                 data = file.read()
                 file.close()
+                if DEBUG: print(currentpathfiles, 'filename', event.src_path, 'data', data, 'modification', 'upd')
                 requests.post(currentpathfiles, data={'filename': event.src_path, 'data': data, 'modification': 'upd'})
 
 
