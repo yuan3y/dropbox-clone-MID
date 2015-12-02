@@ -1,19 +1,13 @@
 from flask import Flask, jsonify, request, send_from_directory
 import os
 import shutil
+import fileindex
 
 defaultpath = "./store/"
 # currentserver = '192.168.43.240'
 currentserver = "127.0.0.1"
 
-def walkFiles(listFiles, listFolders, dir):
-  for name in os.listdir(dir):
-     path = os.path.join(dir, name)
-     if os.path.isfile(path):
-        listFiles.append(path)
-     if os.path.isdir(path):
-        listFolders.append(path)
-        walkFiles(listFiles, listFolders, path)
+
 
 app = Flask(__name__)
 
@@ -32,7 +26,7 @@ def getFile():
 def getCountFiles():
     listfiles = os.listdir(request.form['path'])
     listfolders = os.listdir(request.form['path'])
-    walkFiles(listfiles, listfolders, request.form['path'])
+    fileindex.walkFiles(listfiles, listfolders, request.form['path'])
 
     for name in listfiles:
         if name in listfolders:
@@ -42,6 +36,14 @@ def getCountFiles():
         listfiles.remove(name)
 
     return jsonify({'listfiles': listfiles, 'listfolders': listfolders})
+
+
+@app.route('/getIndex', methods=['GET'])
+# get an index of filemeta and folders
+def getIndex():
+    index=fileindex.getIndex(dir=request.form['path'])
+    print("server jsonifies such thing: "+jsonify(index))
+    # return jsonify(index)
 
 
 @app.route('/del', methods=['POST'])
