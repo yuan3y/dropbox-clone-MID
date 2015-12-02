@@ -42,7 +42,10 @@ def getCountFiles():
 # get an index of filemeta and folders
 def getIndex():
     index=fileindex.getIndex(dir=request.form['path'])
-    print("server jsonifies such thing: "+jsonify(index))
+    files=index['listfiles']
+    folders=index['listfolders']
+    return jsonify({'listfiles':files, 'listfolders':folders})
+    # print("server jsonifies such thing: "+jsonify(index))
     # return jsonify(index)
 
 

@@ -13,10 +13,10 @@ filenames_list =  os.listdir(defaultpath)
 print(filenames_list)
 
 r = requests.get(currentserver+ ":" + port + "/getIndex", data={'path': defaultpath})
-print(r)
-# onserverfilemeta=r.json()['listfiles']
-# onserverfolder_list=r.json()['listfolders']
-
+onserverfilemeta=r.json()['listfiles']
+onserverfolder_list=r.json()['listfolders']
+print(onserverfilemeta)
+print(onserverfolder_list)
 
 # first of all send all files in dirs and subdirs to server
 def walk(dir):
