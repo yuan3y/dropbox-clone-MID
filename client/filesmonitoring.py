@@ -1,6 +1,7 @@
 import os
 import requests
 import time
+from client_default import *
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -8,13 +9,8 @@ from watchdog.observers import Observer
 from filemeta import filemeta
 from writeIndex import writeIndex
 
-defaultpath = "./store/"
-# currentserver = "http://192.168.43.240"
-currentserver = "http://127.0.0.1"
-port = "5000"
-
 # deleting files and folders
-currentpathdel = currentserver+ ":" + port + "/del"
+currentpathdel = currentserver + ":" + port + "/del"
 
 # dependent changes
 currentpathfiles = currentserver+ ":" + port + "/files"
