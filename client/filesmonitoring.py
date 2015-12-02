@@ -8,7 +8,7 @@ from watchdog.observers import Observer
 from filemeta import filemeta
 from writeIndex import writeIndex
 
-DEBUG = False
+DEBUG = True
 
 # deleting files and folders
 currentpathdel = currentserver + ":" + port + "/del"
@@ -25,52 +25,57 @@ currentpathchange = currentserver + ":" + port + "/change"
 class Handler(FileSystemEventHandler):
     # new file appeared -> send to server
     def on_created(self, event):
-        if os.path.isfile(event.src_path):
+        path = event.src_path.replace('\\','/')
+        if os.path.isfile(path):
             # print(event.src_path)
-            file = open(event.src_path, 'r')
+            file = open(path, 'r')
             data = file.read()
             file.close()
-            if DEBUG: print(currentpathfiles, 'filename', event.src_path, 'data', data, 'modification', 'new')
-            requests.post(currentpathfiles, data={'filename': event.src_path, 'data': data, 'modification': 'new'})
+            if DEBUG: print(currentpathfiles, 'filename', path, 'data', data, 'modification', 'new')
+            requests.post(currentpathfiles, data={'filename': path, 'data': data, 'modification': 'new'})
         else:
-            if DEBUG: print(currentpathdirs, 'dir', event.src_path, 'modification', 'new')
-            requests.post(currentpathdirs, data={'dir': event.src_path, 'modification': 'new'})
+            if DEBUG: print(currentpathdirs, 'dir', path, 'modification', 'new')
+            requests.post(currentpathdirs, data={'dir': path, 'modification': 'new'})
 
     # deleting file/folder
     def on_deleted(self, event):
         # no matter what to detele
-        if DEBUG: print(currentpathdel, 'dir', event.src_path, 'modification', 'del')
-        requests.post(currentpathdel, data={'dir': event.src_path, 'modification': 'del'})
+        path = event.src_path.replace('\\','/')
+        if DEBUG: print(currentpathdel, 'dir', path, 'modification', 'del')
+        requests.post(currentpathdel, data={'dir': path, 'modification': 'del'})
 
     # renamimg file/folder
     def on_moved(self, event):
         data = ''
-        if os.path.isfile(event.src_path):
-            file = open(event.dest_path, 'r')
+        path = event.src_path.replace('\\','/')
+        dest_path = event.dest_path.replace('\\','/')
+        if os.path.isfile(path):
+            file = open(dest_path, 'r')
             data = file.read()
             file.close()
-        if DEBUG: print(currentpathchange, 'previousName', event.src_path, 'data', data, 'modification', 'mod',
-                        'newName', event.dest_path)
-        requests.post(currentpathchange, data={'previousName': event.src_path, 'data': data, 'modification': 'mod',
-                                               'newName': event.dest_path})
+        if DEBUG: print(currentpathchange, 'previousName', path, 'data', data, 'modification', 'mod',
+                        'newName', dest_path)
+        requests.post(currentpathchange, data={'previousName': path, 'data': data, 'modification': 'mod',
+                                               'newName': dest_path})
 
     # only for files
     def on_modified(self, event):
-        if os.path.isfile(event.src_path):
-            meta = filemeta(event.src_path)
+        path = event.src_path.replace('\\','/')
+        if os.path.isfile(path):
+            meta = filemeta(path)
             f = open('.index', 'r')
             servermeta = f.readline()
             servermeta = eval(servermeta)
-            if event.src_path in servermeta and meta['hash'] == servermeta[event.src_path]['hash']:
+            if path in servermeta and meta['hash'] == servermeta[path]['hash']:
                 # print('no change for file '+str(meta))
                 pass
             else:
                 # print('it still changes')
-                file = open(event.src_path, 'r')
+                file = open(path, 'r')
                 data = file.read()
                 file.close()
-                if DEBUG: print(currentpathfiles, 'filename', event.src_path, 'data', data, 'modification', 'upd')
-                requests.post(currentpathfiles, data={'filename': event.src_path, 'data': data, 'modification': 'upd'})
+                if DEBUG: print(currentpathfiles, 'filename', path, 'data', data, 'modification', 'upd')
+                requests.post(currentpathfiles, data={'filename': path, 'data': data, 'modification': 'upd'})
 
 
 # launch observer of filesystem
