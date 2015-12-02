@@ -4,10 +4,7 @@ import shutil
 from flask import Flask, jsonify, request
 
 import fileindex
-
-defaultpath = "./store/"
-# currentserver = '192.168.43.240'
-currentserver = "127.0.0.1"
+from client_default import *
 
 app = Flask(__name__)
 
@@ -101,5 +98,8 @@ def postDirs():
 
 
 if __name__ == '__main__':
-    app.run(host=currentserver)
-    # app.run()
+    serverip=currentserver[6:]
+    if not serverip[0].isnumeric():
+        serverip=serverip[1:]
+    print(serverip)
+    app.run(host = serverip)

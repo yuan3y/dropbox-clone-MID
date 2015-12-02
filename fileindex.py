@@ -1,5 +1,4 @@
 import os.path
-
 import filemeta
 
 
@@ -22,8 +21,3 @@ def getIndex(dir="./"):
         meta_data_dict.setdefault(filename, filemeta.filemeta(filename))
     index = {'listfiles': meta_data_dict, 'listfolders': listFolders}
     return index
-    # print(index)
-    # print(json.JSONEncoder().encode(index))
-
-# index=[]
-# getIndex(index,dir="./server/store/")
