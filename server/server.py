@@ -86,7 +86,7 @@ def getHistory():
         op_history.setdefault(request.remote_addr, [])  # start an empty list for new client
         op_history[request.remote_addr].append(
             ('remarks', request.remote_addr, datetime.datetime.now(datetime.timezone.utc)))
-    json_result = jsonify({'client': request.remote_addr, 'history': op_history[request.remote_addr]})
+    json_result = jsonify({'client': request.remote_addr, 'history': op_history[request.remote_addr].copy()})
     op_history[request.remote_addr].clear()
     op_history[request.remote_addr].append(
         ('remarks', request.remote_addr, datetime.datetime.now(datetime.timezone.utc)))

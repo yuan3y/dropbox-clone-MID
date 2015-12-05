@@ -88,7 +88,7 @@ def runmonitoring():
     try:
         while True:
             #  check for scanges on the server
-            time.sleep(10)
+
             # r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
             # print(r)
             observer.stop()
@@ -127,6 +127,7 @@ def runmonitoring():
             #     file.write(data)
             #     file.close()
             observer.join()
+            time.sleep(10)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
