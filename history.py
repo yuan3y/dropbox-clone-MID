@@ -57,6 +57,9 @@ def execute_history(op_history):
             ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': file})
             file = open(file, 'w')
             if ri is not None:
-                data = ri.json()['data']
+                try:
+                    data = ri.json()['data']
+                except:
+                    data=''
                 file.write(data)
             file.close()
