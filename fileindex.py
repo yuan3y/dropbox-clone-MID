@@ -4,7 +4,7 @@ import filemeta
 
 def walkFiles(listFiles, listFolders, dir):
     for name in os.listdir(dir):
-        path = os.path.join(dir, name)
+        path = os.path.join(dir, name).replace('\\','/')
         if os.path.isfile(path):
             listFiles.append(path)
         if os.path.isdir(path):
