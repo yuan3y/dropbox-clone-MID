@@ -1,6 +1,5 @@
 import os
 import shutil
-
 import requests
 from client_default import defaultpath, currentserver, port, DEBUG
 
@@ -55,7 +54,6 @@ def execute_history(op_history):
                     file.write(data)
                 file.close()
         elif operation == 'updfiles' or operation == 'newfiles':
-        # elif 'upd' in operation or 'new' in operation or 'mod' in operation:
             ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': file})
             file = open(file, 'w')
             if ri is not None:
