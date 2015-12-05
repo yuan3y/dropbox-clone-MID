@@ -42,13 +42,14 @@ def execute_history(op_history):
         operation, others = history_for_file[file]
         if operation == 'del':
             remove_file_or_folder(file)
-        # elif operation == 'mod':
-        #     try:
-        #         shutil.move(others, file)
-        #     except:
-        #         pass
-        # elif operation == 'upd' or operation == 'new':
-        elif 'upd' in operation or 'new' in operation or 'mod' in operation:
+        # elif operation == 'newfoler':
+        elif operation == 'mod':
+            try:
+                shutil.move(others, file)
+            except:
+                pass
+        elif operation == 'upd' or operation == 'new':
+        # elif 'upd' in operation or 'new' in operation or 'mod' in operation:
             ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': file})
             file = open(file, 'w')
             if ri is not None:

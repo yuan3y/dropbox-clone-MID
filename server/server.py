@@ -22,9 +22,10 @@ def record_history(client=None, operation='remarks', filename='', other=None):
         print(op_history, "hello")
         return op_history
     for cl in list_of_client:
-        if cl not in op_history and cl!=client:
+        if cl not in op_history:
             op_history.setdefault(cl, [])
-        op_history[cl].append(list((operation, filename, other)))
+        if cl!=client:
+            op_history[cl].append(list((operation, filename, other)))
     # op_history[client].append(operation, filename, other)
     print(op_history, "hello")
     return op_history
@@ -162,7 +163,7 @@ def postFiles():
     # if request.form['filename'] in deleted_files:
     #     deleted_files.pop(request.form['filename'])
     # clear_redundant_deleted_files(request.path)
-    print (meta, filemeta.filemeta(request.form['filename']))
+    # print (meta, filemeta.filemeta(request.form['filename']))
     if meta[hash] != filemeta.filemeta(request.form['filename'])[hash]:
         record_history(client=request.remote_addr, operation=request.form['modification'] + 'files', filename=request.form['filename'], other=None)
     return '', 200
@@ -178,7 +179,7 @@ def postDirs():
     #     deleted_files.pop(request.form['filename'])
     # clear_redundant_deleted_files(request.path)
     record_history(client=request.remote_addr, operation=request.form['modification'] + 'folders',
-                   filename=request.form['filename'], other=None)
+                   filename=request.form['dir'], other=None)
     return 200
 
 
