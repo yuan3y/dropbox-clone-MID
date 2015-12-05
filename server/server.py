@@ -3,6 +3,7 @@ import os
 import shutil
 from flask import Flask, jsonify, request
 import fileindex
+import filemeta
 from client_default import *
 
 app = Flask(__name__)
@@ -137,6 +138,9 @@ def postRename():
 @app.route('/files', methods=['POST'])
 # publish changes of files on the server
 def postFiles():
+    meta = ''
+    if os.path.isfile(request.form['filename']):
+        meta=filemeta.filemeta(request.form['filename'])
     # the new file appeared
     if (request.form['modification'] == 'new'):
         try:
@@ -158,8 +162,9 @@ def postFiles():
     # if request.form['filename'] in deleted_files:
     #     deleted_files.pop(request.form['filename'])
     # clear_redundant_deleted_files(request.path)
-    record_history(client=request.remote_addr, operation=request.form['modification'] + 'files',
-                   filename=request.form['filename'], other=None)
+    print (meta, filemeta.filemeta(request.form['filename']))
+    if meta[hash] != filemeta.filemeta(request.form['filename'])[hash]:
+        record_history(client=request.remote_addr, operation=request.form['modification'] + 'files', filename=request.form['filename'], other=None)
     return '', 200
 
 
