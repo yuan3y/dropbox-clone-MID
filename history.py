@@ -23,19 +23,25 @@ def remove_file_or_folder(file):
 def execute_history(op_history):
     history_for_file = dict()
     for operation, filepath, others in op_history:
-        if operation != 'mod':
+        if operation == 'remarks':
+            pass
+        elif operation != 'mod':
             if filepath in history_for_file:
                 history_for_file[filepath] = (operation, others)
+                if DEBUG: print(filepath,(operation, others)," <= ",operation,filepath,others)
             else:
                 history_for_file.setdefault(filepath, (operation, others))
-        elif operation != 'remarks':  # operation is mod rename
+                if DEBUG: print(filepath,(operation, others)," <= ",operation,filepath,others)
+        else:  # operation is mod rename
             tmp = history_for_file.get(filepath, None)
             if tmp is not None:  # there has been some changes to the original file
                 history_for_file.pop(others, None)
                 remove_file_or_folder(filepath)
                 history_for_file.setdefault(others, tmp)
+                if DEBUG: print(filepath,(tmp)," <= ",operation,filepath,others)
             else:  # there is no change in the file content, just move
                 history_for_file.setdefault(others, ('mod', filepath))  # SPECIAL: filepath is the source file
+                if DEBUG: print(filepath,(others, ('mod', filepath))," <= ",operation,filepath,others)
     if DEBUG: print(history_for_file)
     for file in history_for_file:
         operation, others = history_for_file[file]
