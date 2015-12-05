@@ -140,17 +140,19 @@ def postRename():
 # publish changes of files on the server
 def postFiles():
     meta = dict()
-    meta.setdefault(hash,'')
+    meta.setdefault('hash','')
     if os.path.isfile(request.form['filename']):
         meta=filemeta.filemeta(request.form['filename'])
     # the new file appeared
     if (request.form['modification'] == 'new'):
         try:
+            print ("at after try-except")
             f = open(request.form['filename'], 'w')
             f.write(request.form['data'])
             f.close()
         except IOError:
             print('There was an error with file' + request.form['filename'])
+        print("after try-except")
 
     # update is up to files
     if (request.form['modification'] == 'upd'):
@@ -164,9 +166,11 @@ def postFiles():
     # if request.form['filename'] in deleted_files:
     #     deleted_files.pop(request.form['filename'])
     # clear_redundant_deleted_files(request.path)
-    # print (meta, filemeta.filemeta(request.form['filename']))
-    if meta[hash] != filemeta.filemeta(request.form['filename'])[hash]:
-        record_history(client=request.remote_addr, operation=request.form['modification'] + 'files', filename=request.form['filename'], other=None)
+    print ("before ending")
+    print( meta['hash'])
+    print (filemeta.filemeta(request.form['filename']))
+    if meta['hash'] != filemeta.filemeta(request.form['filename'])['hash']:
+        print( record_history(client=request.remote_addr, operation=request.form['modification'] + 'files', filename=request.form['filename'], other=None) )
     return '', 200
 
 

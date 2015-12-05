@@ -54,7 +54,7 @@ def execute_history(op_history):
                     data = ri.json()['data']
                     file.write(data)
                 file.close()
-        elif operation == 'upd' or operation == 'new':
+        elif operation == 'upd' or operation == 'newfiles':
         # elif 'upd' in operation or 'new' in operation or 'mod' in operation:
             ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': file})
             file = open(file, 'w')
