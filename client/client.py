@@ -11,7 +11,7 @@ from writeIndex import writeIndex
 filenames_list = os.listdir(defaultpath)
 print(filenames_list)
 
-writeIndex()
+# writeIndex()
 
 
 # first of all send all files in dirs and subdirs to server
@@ -29,7 +29,7 @@ def walk(dir):
             walk(path)
 
 
-walk(defaultpath)
+# walk(defaultpath)
 
 # run script for determiming every changes in the folder
 runmonitoring()
