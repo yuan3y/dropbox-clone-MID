@@ -21,10 +21,12 @@ currentpathdirs = currentserver + ":" + port + "/folders"
 currentpathchange = currentserver + ":" + port + "/change"
 
 
+
 # class for monitoring FileSystem
 class Handler(FileSystemEventHandler):
     # new file appeared -> send to server
     def on_created(self, event):
+        if observer_pause: pass
         path = event.src_path.replace('\\', '/')
         if os.path.isfile(path):
             # print(event.src_path)
@@ -39,6 +41,7 @@ class Handler(FileSystemEventHandler):
 
     # deleting file/folder
     def on_deleted(self, event):
+        if observer_pause: pass
         # no matter what to detele
         path = event.src_path.replace('\\', '/')
         if DEBUG: print(currentpathdel, 'dir', path, 'modification', 'del')
@@ -46,6 +49,7 @@ class Handler(FileSystemEventHandler):
 
     # renamimg file/folder
     def on_moved(self, event):
+        if observer_pause: pass
         data = ''
         path = event.src_path.replace('\\', '/')
         dest_path = event.dest_path.replace('\\', '/')
@@ -60,6 +64,7 @@ class Handler(FileSystemEventHandler):
 
     # only for files
     def on_modified(self, event):
+        if observer_pause: pass
         path = event.src_path.replace('\\', '/')
         if os.path.isfile(path):
             meta = filemeta(path)
@@ -88,10 +93,10 @@ def runmonitoring():
     try:
         while True:
             #  check for scanges on the server
-
+            global observer_pause
+            observer_pause = True
             # r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
             # print(r)
-            observer.stop()
             op_history = history.get_history()
             history.execute_history(op_history)
             # onserverfile_list, onserverfolder_list, deleted_files = writeIndex()
@@ -126,7 +131,8 @@ def runmonitoring():
             #     data = ri.json()['data']
             #     file.write(data)
             #     file.close()
-            observer.join()
+            # observer.join()
+            observer_pause = False
             time.sleep(10)
     except KeyboardInterrupt:
         observer.stop()

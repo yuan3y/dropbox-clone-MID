@@ -94,10 +94,14 @@ def getHistory():
 
 
 def record_history(client=None, operation='remarks', filename='', other=None):
-    if client not in op_history:
-        op_history.setdefault(client, [])
-        return
-    op_history[client].append(operation, filename, other)
+    # if client not in op_history:
+    #     op_history.setdefault(client, [])
+    #     return
+    for cl in list_of_client:
+        if cl not in op_history:
+            op_history.setdefault(cl, [])
+        op_history[cl].append(operation, filename, other)
+    # op_history[client].append(operation, filename, other)
     return
 
 
@@ -108,8 +112,8 @@ def postDel():
         os.remove(request.form['dir'])
     else:
         shutil.rmtree(request.form['dir'])
-    tmp_dict_of_filename_with_client = dict.fromkeys(list_of_client, False)
-    tmp_dict_of_filename_with_client[request.remote_addr] = True
+    # tmp_dict_of_filename_with_client = dict.fromkeys(list_of_client, False)
+    # tmp_dict_of_filename_with_client[request.remote_addr] = True
     record_history(client=request.remote_addr, operation=request.form['modification'], filename=request.form['dir'],
                    other=None)
     # deleted_files.setdefault(request.form['dir'], tmp_dict_of_filename_with_client)
