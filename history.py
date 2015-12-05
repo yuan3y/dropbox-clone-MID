@@ -42,7 +42,8 @@ def execute_history(op_history):
         operation, others = history_for_file[file]
         if operation == 'del':
             remove_file_or_folder(file)
-        # elif operation == 'newfoler':
+        elif operation == 'newfolders':
+            os.mkdir(file)
         elif operation == 'mod':
             try:
                 shutil.move(others, file)
