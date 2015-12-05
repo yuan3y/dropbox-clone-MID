@@ -139,7 +139,8 @@ def postRename():
 @app.route('/files', methods=['POST'])
 # publish changes of files on the server
 def postFiles():
-    meta = ''
+    meta = dict()
+    meta.setdefault(hash,'')
     if os.path.isfile(request.form['filename']):
         meta=filemeta.filemeta(request.form['filename'])
     # the new file appeared
