@@ -1,14 +1,15 @@
 import os
 import shutil
 import time
-from client_default import *
+
 import requests
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+
+from client_default import *
+from client_default import DEBUG
 from filemeta import filemeta
 from writeIndex import writeIndex
-
-DEBUG = True
 
 # deleting files and folders
 currentpathdel = currentserver + ":" + port + "/del"
@@ -118,7 +119,7 @@ def runmonitoring():
                     # todo: fill folders with ONLY new files
 
             for filename in onserverfile_list:
-                if DEBUG: print(currentserver+":"+port+"/getfile","filename",filename)
+                if DEBUG: print(currentserver + ":" + port + "/getfile", "filename", filename)
                 ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': filename})
                 # print(ri)
                 file = open(filename, 'w')

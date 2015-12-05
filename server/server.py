@@ -39,7 +39,7 @@ def getCountFiles():
 deleted_files = dict()
 
 
-def clear_redundant_deleted_files():
+def clear_redundant_deleted_files(path = None):
     for filename in deleted_files:
         if all(deleted_files[filename]):
             deleted_files.pop(filename)
@@ -52,7 +52,7 @@ def getIndex():
     if request.remote_addr not in list_of_client:
         list_of_client.append(request.remote_addr)
         print('new connection comes from', request.remote_addr)
-        client_specific_deleted_file_list = deleted_files.keys()  # special case for new client, won't be added to the current deleted file list
+        client_specific_deleted_file_list = list(deleted_files.keys())  # special case for new client, won't be added to the current deleted file list
     index = fileindex.getIndex(dir=request.form['path'])
     files = index['listfiles']
     folders = index['listfolders']
@@ -60,8 +60,9 @@ def getIndex():
         if not deleted_files[filename].get(request.remote_addr, True):
             client_specific_deleted_file_list.append(filename)
             deleted_files[filename][request.remote_addr] = True
-    clear_redundant_deleted_files()
+    clear_redundant_deleted_files(request.path)
     json_result = jsonify({'listfiles': files, 'listfolders': folders, 'deleted': client_specific_deleted_file_list})
+    if DEBUG: print({'listfiles': files, 'listfolders': folders, 'deleted': client_specific_deleted_file_list})
     return json_result
 
 
@@ -75,7 +76,7 @@ def postDel():
     tmp_dict_of_filename_with_client = dict.fromkeys(list_of_client, False)
     tmp_dict_of_filename_with_client[request.remote_addr] = True
     deleted_files.setdefault(request.form['dir'], tmp_dict_of_filename_with_client)
-    clear_redundant_deleted_files()
+    clear_redundant_deleted_files(request.path)
 
 
 @app.route('/change', methods=['POST'])
@@ -87,7 +88,7 @@ def postRename():
         os.rename(request.form['previousName'], request.form['newName'])
     if request.form['newName'] in deleted_files:
         deleted_files.pop(request.form['filename'])
-    clear_redundant_deleted_files()
+    clear_redundant_deleted_files(request.path)
 
 
 @app.route('/files', methods=['POST'])
@@ -113,7 +114,7 @@ def postFiles():
 
     if request.form['filename'] in deleted_files:
         deleted_files.pop(request.form['filename'])
-    clear_redundant_deleted_files()
+    clear_redundant_deleted_files(request.path)
     return '', 200
 
 
@@ -125,7 +126,7 @@ def postDirs():
         os.makedirs(request.form['dir'])
     if request.form['filename'] in deleted_files:
         deleted_files.pop(request.form['filename'])
-    clear_redundant_deleted_files()
+    clear_redundant_deleted_files(request.path)
     return 200
 
 
