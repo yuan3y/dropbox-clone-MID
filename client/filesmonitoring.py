@@ -132,8 +132,9 @@ def runmonitoring():
             #     file.write(data)
             #     file.close()
             # observer.join()
+            time.sleep(2)
             observer_pause = False
-            time.sleep(10)
+            time.sleep(8)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()

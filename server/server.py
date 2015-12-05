@@ -99,7 +99,7 @@ def getHistory():
         record_history(request.remote_addr,operation='remarks',filename=request.remote_addr, other=datetime.datetime.now(datetime.timezone.utc))
     copy = op_history[request.remote_addr].copy()
     json_result = jsonify({'client': request.remote_addr, 'history': copy})
-    op_history[request.remote_addr].clear()
+    op_history[request.remote_addr]=[]
     record_history(request.remote_addr,operation='remarks',filename=request.remote_addr, other=datetime.datetime.now(datetime.timezone.utc))
     return json_result
 
