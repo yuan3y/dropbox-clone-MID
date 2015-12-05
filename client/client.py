@@ -29,7 +29,7 @@ def walk(dir):
             walk(path)
 
 
-walk(defaultpath)
+# walk(defaultpath)
 
 # run script for determiming every changes in the folder
 runmonitoring()

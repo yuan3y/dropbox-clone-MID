@@ -1,15 +1,14 @@
 import os
-import shutil
 import time
 
 import requests
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
+import history
 from client_default import *
 from client_default import DEBUG
 from filemeta import filemeta
-from writeIndex import writeIndex
 
 # deleting files and folders
 currentpathdel = currentserver + ":" + port + "/del"
@@ -26,7 +25,7 @@ currentpathchange = currentserver + ":" + port + "/change"
 class Handler(FileSystemEventHandler):
     # new file appeared -> send to server
     def on_created(self, event):
-        path = event.src_path.replace('\\','/')
+        path = event.src_path.replace('\\', '/')
         if os.path.isfile(path):
             # print(event.src_path)
             file = open(path, 'r')
@@ -41,15 +40,15 @@ class Handler(FileSystemEventHandler):
     # deleting file/folder
     def on_deleted(self, event):
         # no matter what to detele
-        path = event.src_path.replace('\\','/')
+        path = event.src_path.replace('\\', '/')
         if DEBUG: print(currentpathdel, 'dir', path, 'modification', 'del')
         requests.post(currentpathdel, data={'dir': path, 'modification': 'del'})
 
     # renamimg file/folder
     def on_moved(self, event):
         data = ''
-        path = event.src_path.replace('\\','/')
-        dest_path = event.dest_path.replace('\\','/')
+        path = event.src_path.replace('\\', '/')
+        dest_path = event.dest_path.replace('\\', '/')
         if os.path.isfile(path):
             file = open(dest_path, 'r')
             data = file.read()
@@ -61,7 +60,7 @@ class Handler(FileSystemEventHandler):
 
     # only for files
     def on_modified(self, event):
-        path = event.src_path.replace('\\','/')
+        path = event.src_path.replace('\\', '/')
         if os.path.isfile(path):
             meta = filemeta(path)
             f = open('.index', 'r')
@@ -88,45 +87,46 @@ def runmonitoring():
     # run forever
     try:
         while True:
-
             #  check for scanges on the server
             time.sleep(10)
             # r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
             # print(r)
-
-            onserverfile_list, onserverfolder_list, deleted_files = writeIndex()
-
-            # # get directories and files on server
-            # onserverfolder_list = r.json()['listfolders']
-            # onserverfile_list = r.json()['listfiles']
+            observer.stop()
+            op_history = history.get_history()
+            history.execute_history(op_history)
+            # onserverfile_list, onserverfolder_list, deleted_files = writeIndex()
             #
-            # print
-            print(onserverfolder_list)
-            print(onserverfile_list)
-            print(deleted_files)
-
-            for file in deleted_files:
-                if (os.path.isfile(file)):
-                    os.remove(file)
-                elif (os.path.exists(file)):
-                    shutil.rmtree(file)
-
-            # create new folders
-            for dir in onserverfolder_list:
-                if not os.path.exists(dir):
-                    os.makedirs(dir)
-                    # todo: currently it is getting all files from the server, but
-                    # todo: fill folders with ONLY new files
-
-            for filename in onserverfile_list:
-                if DEBUG: print(currentserver + ":" + port + "/getfile", "filename", filename)
-                ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': filename})
-                # print(ri)
-                file = open(filename, 'w')
-                data = ri.json()['data']
-                file.write(data)
-                file.close()
-
+            # # # get directories and files on server
+            # # onserverfolder_list = r.json()['listfolders']
+            # # onserverfile_list = r.json()['listfiles']
+            # #
+            # # print
+            # print(onserverfolder_list)
+            # print(onserverfile_list)
+            # print(deleted_files)
+            #
+            # for file in deleted_files:
+            #     if (os.path.isfile(file)):
+            #         os.remove(file)
+            #     elif (os.path.exists(file)):
+            #         shutil.rmtree(file)
+            #
+            # # create new folders
+            # for dir in onserverfolder_list:
+            #     if not os.path.exists(dir):
+            #         os.makedirs(dir)
+            #         # todo: currently it is getting all files from the server, but
+            #         # todo: fill folders with ONLY new files
+            #
+            # for filename in onserverfile_list:
+            #     if DEBUG: print(currentserver + ":" + port + "/getfile", "filename", filename)
+            #     ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': filename})
+            #     # print(ri)
+            #     file = open(filename, 'w')
+            #     data = ri.json()['data']
+            #     file.write(data)
+            #     file.close()
+            observer.join()
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
