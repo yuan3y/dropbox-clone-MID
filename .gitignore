@@ -57,8 +57,10 @@ docs/_build/
 target/
 
 # Project Storage
-client/store
-server/store
+/client/store
+/client/.previous_ip
+/client/.index
+/server/store
 
 ### PyCharm ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
@@ -87,7 +89,6 @@ server/store
 # .idea/libraries
 
 # Mongo Explorer plugin:
-/client/.index
 # .idea/mongoSettings.xml
 
 ## File-based project format:
