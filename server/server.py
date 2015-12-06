@@ -41,23 +41,6 @@ def getFile():
     return jsonify({'data': data})
 
 
-@app.route('/getfiles', methods=['GET'])
-# get list of all files/dirs on the server
-def getCountFiles():
-    listfiles = os.listdir(request.form['path'])
-    listfolders = os.listdir(request.form['path'])
-    fileindex.walkFiles(listfiles, listfolders, request.form['path'])
-
-    for name in listfiles:
-        if name in listfolders:
-            listfolders.remove(name)
-
-    for name in os.listdir(request.form['path']):
-        listfiles.remove(name)
-
-    return jsonify({'listfiles': listfiles, 'listfolders': listfolders})
-
-
 deleted_files = dict()
 
 

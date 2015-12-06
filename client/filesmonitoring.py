@@ -21,7 +21,6 @@ currentpathdirs = currentserver + ":" + port + "/folders"
 currentpathchange = currentserver + ":" + port + "/change"
 
 
-
 # class for monitoring FileSystem
 class Handler(FileSystemEventHandler):
     # new file appeared -> send to server
@@ -95,15 +94,11 @@ def runmonitoring():
             #  check for scanges on the server
             global observer_pause
             observer_pause = True
-            # r = requests.get(currentserver+ ":" + port + "/getfiles", data={'path': defaultpath})
-            # print(r)
+
             op_history = history.get_history()
             history.execute_history(op_history)
             # onserverfile_list, onserverfolder_list, deleted_files = writeIndex()
             #
-            # # # get directories and files on server
-            # # onserverfolder_list = r.json()['listfolders']
-            # # onserverfile_list = r.json()['listfiles']
             # #
             # # print
             # print(onserverfolder_list)
@@ -120,8 +115,6 @@ def runmonitoring():
             # for dir in onserverfolder_list:
             #     if not os.path.exists(dir):
             #         os.makedirs(dir)
-            #         # todo: currently it is getting all files from the server, but
-            #         # todo: fill folders with ONLY new files
             #
             # for filename in onserverfile_list:
             #     if DEBUG: print(currentserver + ":" + port + "/getfile", "filename", filename)
