@@ -35,6 +35,30 @@ def record_history(client=None, operation='remarks', filename='', other=None):
     return op_history
 
 
+@app.route('/start', methods=['POST'])
+# start of client # 'path': defaultpath, 'type': 'restart', 'old_ip': ip
+def start():
+    if request.form['type'] == 'new':
+        list_of_client.append(request.remote_addr)
+        print('new connection comes from', request.remote_addr)
+    else:
+        old_ip = request.form['old_ip']
+        if old_ip == request.remote_addr:
+            pass  # just an old client come back using same ip address
+        else:
+            # old client on different ip address
+            if request.remote_addr in list_of_client:
+                # new address takes away some older address, ip conflict
+                pass
+            else:
+                tmp = op_history.pop(old_ip, None)
+                if tmp is not None:
+                    op_history.setdefault(request.remote_addr, tmp)
+                    op_history[request.remote_addr] = tmp
+
+    return jsonify({'ip': request.remote_addr})
+
+
 @app.route('/getfile', methods=['GET'])
 # get 'filename' file on the server
 def getFile():
