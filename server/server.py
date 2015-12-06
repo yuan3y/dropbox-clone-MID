@@ -65,34 +65,17 @@ def getFile():
     return jsonify({'data': data})
 
 
-deleted_files = dict()
-
-
-def clear_redundant_deleted_files(path=None):
-    for filename in deleted_files:
-        if all(deleted_files[filename]):
-            deleted_files.pop(filename)
-
-
 @app.route('/getIndex', methods=['GET'])
 # get an index of filemeta and folders
 def getIndex():
-    client_specific_deleted_file_list = []
     if request.remote_addr not in list_of_client:
         list_of_client.append(request.remote_addr)
         print('new connection comes from', request.remote_addr)
-        client_specific_deleted_file_list = list(
-            deleted_files.keys())  # special case for new client, won't be added to the current deleted file list
     index = get_index(directory=request.form['path'])
     files = index['listfiles']
     folders = index['listfolders']
-    for filename in deleted_files:
-        if not deleted_files[filename].get(request.remote_addr, True):
-            client_specific_deleted_file_list.append(filename)
-            deleted_files[filename][request.remote_addr] = True
-    clear_redundant_deleted_files(request.path)
-    json_result = jsonify({'listfiles': files, 'listfolders': folders, 'deleted': client_specific_deleted_file_list})
-    if DEBUG: print({'listfiles': files, 'listfolders': folders, 'deleted': client_specific_deleted_file_list})
+    json_result = jsonify({'listfiles': files, 'listfolders': folders})
+    if DEBUG: print({'listfiles': files, 'listfolders': folders})
     return json_result
 
 
@@ -123,10 +106,6 @@ def postDel():
         os.remove(request.form['dir'])
     else:
         shutil.rmtree(request.form['dir'])
-    # tmp_dict_of_filename_with_client = dict.fromkeys(list_of_client, False)
-    # tmp_dict_of_filename_with_client[request.remote_addr] = True
-    # deleted_files.setdefault(request.form['dir'], tmp_dict_of_filename_with_client)
-    # clear_redundant_deleted_files(request.path)
     return 200
 
 
@@ -137,9 +116,6 @@ def postRename():
     print(request.form['newName'])
     if (request.form['modification'] == 'mod'):
         os.rename(request.form['previousName'], request.form['newName'])
-    # if request.form['newName'] in deleted_files:
-    #     deleted_files.pop(request.form['filename'])
-    # clear_redundant_deleted_files(request.path)
     record_history(client=request.remote_addr, operation=request.form['modification'],
                    filename=request.form['previousName'], other=request.form['newName'])
 
@@ -170,10 +146,6 @@ def postFiles():
             f.close()
         except IOError:
             print('There was an error with modifying file' + request.form['filename'])
-
-    # if request.form['filename'] in deleted_files:
-    #     deleted_files.pop(request.form['filename'])
-    # clear_redundant_deleted_files(request.path)
     print("before ending")
     print(meta['hash'])
     print(filemeta.filemeta(request.form['filename']))
@@ -189,9 +161,6 @@ def postDirs():
     # the new folder appeared
     if (request.form['modification'] == 'new'):
         os.makedirs(request.form['dir'])
-    # if request.form['filename'] in deleted_files:
-    #     deleted_files.pop(request.form['filename'])
-    # clear_redundant_deleted_files(request.path)
     record_history(client=request.remote_addr, operation=request.form['modification'] + 'folders',
                    filename=request.form['dir'], other=None)
     return 200

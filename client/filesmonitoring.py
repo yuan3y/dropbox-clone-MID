@@ -97,19 +97,12 @@ def runmonitoring():
 
             op_history = history.get_history()
             history.execute_history(op_history)
-            # onserverfile_list, onserverfolder_list, deleted_files = writeIndex()
+            # onserverfile_list, onserverfolder_list = writeIndex()
             #
             # #
             # # print
             # print(onserverfolder_list)
             # print(onserverfile_list)
-            # print(deleted_files)
-            #
-            # for file in deleted_files:
-            #     if (os.path.isfile(file)):
-            #         os.remove(file)
-            #     elif (os.path.exists(file)):
-            #         shutil.rmtree(file)
             #
             # # create new folders
             # for dir in onserverfolder_list:
