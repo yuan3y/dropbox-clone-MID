@@ -13,5 +13,7 @@ def filehash(filepath):
 
 def filemeta(filepath):
     if os.path.isfile(filepath):
-        return {'path': filepath, 'mtime': time.ctime(os.path.getmtime(filepath)), 'size': os.path.getsize(filepath),
+        return {'path': filepath,
+                # 'mtime': time.ctime(os.path.getmtime(filepath)),
+                'size': os.path.getsize(filepath),
                 'hash': filehash(filepath)}

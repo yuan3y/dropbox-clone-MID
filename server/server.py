@@ -7,6 +7,7 @@ from flask import Flask, jsonify, request
 
 import filemeta
 from client_default import *
+from fileindex import get_index
 
 app = Flask(__name__)
 
@@ -34,27 +35,6 @@ def record_history(client=None, operation='remarks', filename='', other=None):
     return op_history
 
 
-def walk_files(list_files, list_folders, directory):
-    for name in os.listdir(directory):
-        path = os.path.join(directory, name).replace('\\', '/')
-        if os.path.isfile(path):
-            list_files.append(path)
-        if os.path.isdir(path):
-            list_folders.append(path)
-            walk_files(list_files, list_folders, path)
-
-
-def get_index(directory="./store"):
-    meta_data_dict = dict()
-    list_files = []
-    list_folders = []
-    walk_files(list_files, list_folders, directory)
-    for filename in list_files:
-        meta_data_dict.setdefault(filename, filemeta.filemeta(filename))
-    index = {'listfiles': meta_data_dict, 'listfolders': list_folders}
-    return index
-
-
 @app.route('/getfile', methods=['GET'])
 # get 'filename' file on the server
 def getFile():
@@ -71,9 +51,7 @@ def getIndex():
     if request.remote_addr not in list_of_client:
         list_of_client.append(request.remote_addr)
         print('new connection comes from', request.remote_addr)
-    index = get_index(directory=request.form['path'])
-    files = index['listfiles']
-    folders = index['listfolders']
+    files, folders = get_index(directory=request.form['path'])
     json_result = jsonify({'listfiles': files, 'listfolders': folders})
     if DEBUG: print({'listfiles': files, 'listfolders': folders})
     return json_result
@@ -118,6 +96,7 @@ def postRename():
         os.rename(request.form['previousName'], request.form['newName'])
     record_history(client=request.remote_addr, operation=request.form['modification'],
                    filename=request.form['previousName'], other=request.form['newName'])
+    return 200
 
 
 @app.route('/files', methods=['POST'])

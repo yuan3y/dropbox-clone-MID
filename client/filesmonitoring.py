@@ -6,11 +6,12 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 import history
-from client_default import *
-from client_default import DEBUG
+from client_default import DEBUG, currentserver, port, defaultpath
+from fileindex import get_index
 from filemeta import filemeta
 
 # deleting files and folders
+
 currentpathdel = currentserver + ":" + port + "/del"
 
 # dependent changes
@@ -19,6 +20,26 @@ currentpathdirs = currentserver + ":" + port + "/folders"
 
 # renaming files and folders
 currentpathchange = currentserver + ":" + port + "/change"
+
+
+def writeIndex():
+    r = requests.get(currentserver + ":" + port + "/getIndex", data={'path': defaultpath})
+    server_filemeta = r.json()['listfiles']
+    server_folder_list = r.json()['listfolders']
+    f = open('.index', 'w')
+    f.write(str(server_filemeta))
+    f.close()
+    return server_filemeta, server_folder_list
+
+
+def index_change():
+    server_filemeta, server_folder_list = writeIndex()
+    local_filemeta, local_folder_list = get_index(defaultpath)
+    different_file = set(local_filemeta).difference(set(server_filemeta))
+    different_folder = set(local_folder_list).difference(set(server_folder_list))
+    local_removed_file = set(server_filemeta).difference(set(local_filemeta)).difference(different_file)
+    local_removed_folder = set(server_folder_list).difference(set(local_folder_list)).difference(different_folder)
+    return list(different_file), list(different_folder), list(local_removed_file), list(local_removed_folder)
 
 
 # class for monitoring FileSystem
@@ -91,33 +112,37 @@ def runmonitoring():
     # run forever
     try:
         while True:
-            #  check for scanges on the server
+            #  check for changes on the server
             global observer_pause
             observer_pause = True
 
             op_history = history.get_history()
             history.execute_history(op_history)
-            # onserverfile_list, onserverfolder_list = writeIndex()
-            #
-            # #
-            # # print
-            # print(onserverfolder_list)
-            # print(onserverfile_list)
-            #
-            # # create new folders
-            # for dir in onserverfolder_list:
-            #     if not os.path.exists(dir):
-            #         os.makedirs(dir)
-            #
-            # for filename in onserverfile_list:
-            #     if DEBUG: print(currentserver + ":" + port + "/getfile", "filename", filename)
-            #     ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': filename})
-            #     # print(ri)
-            #     file = open(filename, 'w')
-            #     data = ri.json()['data']
-            #     file.write(data)
-            #     file.close()
-            # observer.join()
+
+            change_file, change_folder, local_removed_file, local_removed_folder = index_change()
+            if DEBUG: print(change_file, change_folder)
+            for path in change_folder:
+                if os.path.isdir(path):
+                    path = path.replace('\\', '/')
+                    if DEBUG: print(currentpathdirs, 'dir', path, 'modification', 'new')
+                    requests.post(currentpathdirs, data={'dir': path, 'modification': 'new'})
+            for path in change_file:
+                if os.path.isfile(path):
+                    path = path.replace('\\', '/')
+                    file = open(path, 'r')
+                    data = file.read()
+                    file.close()
+                    if DEBUG: print(currentpathfiles, 'filename', path, 'data', data, 'modification', 'new')
+                    requests.post(currentpathfiles, data={'filename': path, 'data': data, 'modification': 'new'})
+            for path in local_removed_file:
+                path = path.replace('\\', '/')
+                if DEBUG: print(currentpathdel, 'dir', path, 'modification', 'del')
+                requests.post(currentpathdel, data={'dir': path, 'modification': 'del'})
+
+            for path in local_removed_folder:
+                path = path.replace('\\', '/')
+                if DEBUG: print(currentpathdel, 'dir', path, 'modification', 'del')
+                requests.post(currentpathdel, data={'dir': path, 'modification': 'del'})
             time.sleep(2)
             observer_pause = False
             time.sleep(8)
