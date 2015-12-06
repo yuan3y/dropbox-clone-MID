@@ -1,8 +1,10 @@
 import datetime
 import os
+import os.path
 import shutil
+
 from flask import Flask, jsonify, request
-import fileindex
+
 import filemeta
 from client_default import *
 
@@ -12,23 +14,45 @@ list_of_client = []
 
 op_history = dict()
 
+
 def record_history(client=None, operation='remarks', filename='', other=None):
     # if client not in op_history:
     #     op_history.setdefault(client, [])
     #     return
     global op_history
-    if operation=='remarks':
-        op_history[client].append(list((operation,filename,other)))
+    if operation == 'remarks':
+        op_history[client].append(list((operation, filename, other)))
         print(op_history, "hello")
         return op_history
     for cl in list_of_client:
         if cl not in op_history:
             op_history.setdefault(cl, [])
-        if cl!=client:
+        if cl != client:
             op_history[cl].append(list((operation, filename, other)))
     # op_history[client].append(operation, filename, other)
     print(op_history, "hello")
     return op_history
+
+
+def walk_files(list_files, list_folders, directory):
+    for name in os.listdir(directory):
+        path = os.path.join(directory, name).replace('\\', '/')
+        if os.path.isfile(path):
+            list_files.append(path)
+        if os.path.isdir(path):
+            list_folders.append(path)
+            walk_files(list_files, list_folders, path)
+
+
+def get_index(directory="./store"):
+    meta_data_dict = dict()
+    list_files = []
+    list_folders = []
+    walk_files(list_files, list_folders, directory)
+    for filename in list_files:
+        meta_data_dict.setdefault(filename, filemeta.filemeta(filename))
+    index = {'listfiles': meta_data_dict, 'listfolders': list_folders}
+    return index
 
 
 @app.route('/getfile', methods=['GET'])
@@ -59,7 +83,7 @@ def getIndex():
         print('new connection comes from', request.remote_addr)
         client_specific_deleted_file_list = list(
             deleted_files.keys())  # special case for new client, won't be added to the current deleted file list
-    index = fileindex.getIndex(dir=request.form['path'])
+    index = get_index(directory=request.form['path'])
     files = index['listfiles']
     folders = index['listfolders']
     for filename in deleted_files:
@@ -72,7 +96,6 @@ def getIndex():
     return json_result
 
 
-
 @app.route('/getHistory', methods=['GET'])
 # get a dictionary corresponding clients to a list of operations since the client's last connection
 def getHistory():
@@ -81,11 +104,13 @@ def getHistory():
         list_of_client.append(request.remote_addr)
         print('new connection comes from', request.remote_addr)
         op_history.setdefault(request.remote_addr, [])  # start an empty list for new client
-        record_history(request.remote_addr,operation='remarks',filename=request.remote_addr, other=datetime.datetime.now(datetime.timezone.utc))
+        record_history(request.remote_addr, operation='remarks', filename=request.remote_addr,
+                       other=datetime.datetime.now(datetime.timezone.utc))
     copy = op_history[request.remote_addr].copy()
     json_result = jsonify({'client': request.remote_addr, 'history': copy})
-    op_history[request.remote_addr]=[]
-    record_history(request.remote_addr,operation='remarks',filename=request.remote_addr, other=datetime.datetime.now(datetime.timezone.utc))
+    op_history[request.remote_addr] = []
+    record_history(request.remote_addr, operation='remarks', filename=request.remote_addr,
+                   other=datetime.datetime.now(datetime.timezone.utc))
     return json_result
 
 
@@ -123,13 +148,13 @@ def postRename():
 # publish changes of files on the server
 def postFiles():
     meta = dict()
-    meta.setdefault('hash','')
+    meta.setdefault('hash', '')
     if os.path.isfile(request.form['filename']):
-        meta=filemeta.filemeta(request.form['filename'])
+        meta = filemeta.filemeta(request.form['filename'])
     # the new file appeared
     if (request.form['modification'] == 'new'):
         try:
-            print ("at after try-except")
+            print("at after try-except")
             f = open(request.form['filename'], 'w')
             f.write(request.form['data'])
             f.close()
@@ -149,11 +174,12 @@ def postFiles():
     # if request.form['filename'] in deleted_files:
     #     deleted_files.pop(request.form['filename'])
     # clear_redundant_deleted_files(request.path)
-    print ("before ending")
-    print( meta['hash'])
-    print (filemeta.filemeta(request.form['filename']))
+    print("before ending")
+    print(meta['hash'])
+    print(filemeta.filemeta(request.form['filename']))
     if meta['hash'] != filemeta.filemeta(request.form['filename'])['hash']:
-        print( record_history(client=request.remote_addr, operation=request.form['modification'] + 'files', filename=request.form['filename'], other=None) )
+        print(record_history(client=request.remote_addr, operation=request.form['modification'] + 'files',
+                             filename=request.form['filename'], other=None))
     return '', 200
 
 
