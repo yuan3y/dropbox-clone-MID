@@ -54,6 +54,7 @@ def execute_history(op_history):
                 shutil.move(others, file)
             except:
                 ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': file})
+                if DEBUG: print(currentserver + ":" + port + "/getfile", 'filename' + file)
                 file = open(file, 'w')
                 if ri is not None:
                     data = ri.json()['data']
@@ -61,6 +62,7 @@ def execute_history(op_history):
                 file.close()
         elif operation == 'updfiles' or operation == 'newfiles':
             ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': file})
+            if DEBUG: print(currentserver + ":" + port + "/getfile", 'filename' + file)
             file = open(file, 'w')
             if ri is not None:
                 try:
