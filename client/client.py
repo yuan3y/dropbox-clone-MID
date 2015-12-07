@@ -45,8 +45,11 @@ else:
         if ri is not None:
             try:
                 data = ri.json()['data']
+                eval(data)
+                print(data)
             except:
                 data = ''
+                data = bytes(data)
             file.write(data)
         file.close()
 
