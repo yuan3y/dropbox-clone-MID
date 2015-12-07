@@ -41,7 +41,7 @@ else:
     for file in server_filemeta:
         ri = requests.get(currentserver + ":" + port + "/getfile", data={'filename': file})
         if DEBUG: print(currentserver + ":" + port + "/getfile", 'filename', file)
-        file = open(file, 'w')
+        file = open(file, 'wb')
         if ri is not None:
             try:
                 data = ri.json()['data']

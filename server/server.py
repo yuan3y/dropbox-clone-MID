@@ -63,7 +63,7 @@ def start():
 # get 'filename' file on the server
 def getFile():
     print(request.form['filename'])
-    f = open(request.form['filename'], 'r')
+    f = open(request.form['filename'], 'rb')
     data = f.read()
     f.close()
     return jsonify({'data': data})
