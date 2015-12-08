@@ -133,21 +133,22 @@ def postFiles():
     # the new file appeared
     if (request.form['modification'] == 'new'):
         try:
-            print("at after try-except")
-            f = open(request.form['filename'], 'w')
-            f.write(request.form['data'])
-            f.close()
-        except IOError:
+            print("receiving content of ", request.form['filename'])
+            print(request.files)
+            file = request.files['file']
+            file.save(request.form['filename'])
+        except:
             print('There was an error with file' + request.form['filename'])
         print("after try-except")
 
     # update is up to files
     if (request.form['modification'] == 'upd'):
         try:
-            f = open(request.form['filename'], 'w')
-            f.write(request.form['data'])
-            f.close()
-        except IOError:
+            print("receiving content of ", request.form['filename'])
+            print(request.files)
+            file = request.files['file']
+            file.save(request.form['filename'])
+        except:
             print('There was an error with modifying file' + request.form['filename'])
     print("before ending")
     print(meta['hash'])

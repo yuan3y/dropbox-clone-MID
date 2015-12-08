@@ -50,11 +50,14 @@ class Handler(FileSystemEventHandler):
         path = event.src_path.replace('\\', '/')
         if os.path.isfile(path):
             # print(event.src_path)
-            file = open(path, 'r')
+            file = open(path, 'rb')
             data = file.read()
             file.close()
-            if DEBUG: print(currentpathfiles, 'filename', path, 'data', data, 'modification', 'new')
-            requests.post(currentpathfiles, data={'filename': path, 'data': data, 'modification': 'new'})
+            if DEBUG: print(currentpathfiles, 'filename', path, 'modification', 'new')
+            r = requests.post(currentpathfiles,
+                              data={'filename': path, 'modification': 'new'},
+                              files={'file': open(path, 'rb')})
+            if DEBUG: print(r.text)
         else:
             if DEBUG: print(currentpathdirs, 'dir', path, 'modification', 'new')
             requests.post(currentpathdirs, data={'dir': path, 'modification': 'new'})
@@ -74,10 +77,10 @@ class Handler(FileSystemEventHandler):
         path = event.src_path.replace('\\', '/')
         dest_path = event.dest_path.replace('\\', '/')
         if os.path.isfile(path):
-            file = open(dest_path, 'r')
+            file = open(dest_path, 'rb')
             data = file.read()
             file.close()
-        if DEBUG: print(currentpathchange, 'previousName', path, 'data', data, 'modification', 'mod',
+        if DEBUG: print(currentpathchange, 'previousName', path, 'data', type(data), len(data), 'modification', 'mod',
                         'newName', dest_path)
         requests.post(currentpathchange, data={'previousName': path, 'data': data, 'modification': 'mod',
                                                'newName': dest_path})
@@ -96,11 +99,14 @@ class Handler(FileSystemEventHandler):
                 pass
             else:
                 # print('it still changes')
-                file = open(path, 'r')
+                file = open(path, 'rb')
                 data = file.read()
                 file.close()
-                if DEBUG: print(currentpathfiles, 'filename', path, 'data', data, 'modification', 'upd')
-                requests.post(currentpathfiles, data={'filename': path, 'data': data, 'modification': 'upd'})
+                if DEBUG: print(currentpathfiles, 'filename', path, 'modification', 'upd')
+                r = requests.post(currentpathfiles,
+                                  data={'filename': path, 'modification': 'upd'},
+                                  files={'file': open(path, 'rb')})
+                if DEBUG: print(r.text)
 
 
 # launch observer of filesystem
@@ -129,11 +135,11 @@ def runmonitoring():
             for path in change_file:
                 if os.path.isfile(path):
                     path = path.replace('\\', '/')
-                    file = open(path, 'r')
-                    data = file.read()
-                    file.close()
-                    if DEBUG: print(currentpathfiles, 'filename', path, 'data', data, 'modification', 'new')
-                    requests.post(currentpathfiles, data={'filename': path, 'data': data, 'modification': 'new'})
+                    if DEBUG: print(currentpathfiles, 'filename', path, 'modification', 'new')
+                    r = requests.post(currentpathfiles,
+                                      data={'filename': path, 'modification': 'new'},
+                                      files={'file': open(path, 'rb')})
+                    if DEBUG: print(r.text)
             for path in local_removed_file:
                 path = path.replace('\\', '/')
                 if DEBUG: print(currentpathdel, 'dir', path, 'modification', 'del')
